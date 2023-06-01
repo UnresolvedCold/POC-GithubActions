@@ -18,10 +18,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        ref: ${{ inputs.branch }}
-      
+        fetch-depth: 0
+
     - name: Revert commit
-      run: git revert ${{ inputs.commit_id }}
+      run: |
+        git checkout ${{ inputs.branch }}
+        git revert ${{ inputs.commit_id }}
       
     - name: Push changes
       uses: ad-m/github-push-action@v0.6.0
