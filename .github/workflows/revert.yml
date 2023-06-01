@@ -7,7 +7,7 @@ on:
         description: 'Branch name'
         required: true
       commit_id:
-        description: 'Commit ID'
+        description: 'Commit Id'
         required: true
 
 jobs:
@@ -20,6 +20,11 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ secrets.GH_PUSH_PAT }}
+
+    - name: Set Git user identity
+      run: |
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
 
     - name: Revert commit
       run: |
