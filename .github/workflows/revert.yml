@@ -23,7 +23,7 @@ jobs:
     - name: Revert commit
       run: |
         git checkout ${{ inputs.branch }}
-        git revert ${{ inputs.commit_id }}
+        git revert -s recursive -Xtheirs ${{ inputs.commit_id }}
       
     - name: Push changes
       uses: ad-m/github-push-action@v0.6.0
