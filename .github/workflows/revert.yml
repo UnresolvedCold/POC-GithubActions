@@ -16,8 +16,7 @@ jobs:
     steps:
     - name: Check team membership
       run: |
-        echo Allowed: ${{ vars.ALLOWED_USERS }}
-        team_names=("gm-maintainers" "other-team" "another-team")
+        team_names=(${{ vars.ALLOWED_USERS }})
 
         is_member=false
         for team_name in "${team_names[@]}"; do
