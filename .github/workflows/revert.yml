@@ -2,6 +2,8 @@ name: Revert Commit
 
 on:
   workflow_dispatch:
+    permissions:
+      teams: [myteam]
     inputs:
       branch:
         description: 'Branch name'
@@ -13,8 +15,21 @@ on:
 jobs:
   revert_commit:
     runs-on: ubuntu-latest
-    
     steps:
+    - name: Check team membership
+      run: |
+        team_name="My_Team"
+        team_members=$(gh team list-members --team "$team_name" --json login --paginate)
+        # ! Remove this before production
+        echo "Team members: $team_members"
+        member_login=$(jq --raw-output ".[].login" <<< "$team_members")
+
+        if [[ $member_login =~ "${{ github.actor }}" ]]; then
+          echo "User is a member of the specified team. Proceeding with the workflow..."
+        else
+          echo "Permission denied."
+          exit 1
+        fi
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
