@@ -14,43 +14,24 @@ jobs:
   revert_commit:
     runs-on: ubuntu-latest
     steps:
-    - name: Check team membership
-      run: |
-        team_names=(${{ vars.ALLOWED_USERS }})
-
-        is_member=false
-        for team_name in "${team_names[@]}"; do
-          member_login=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_PUSH_PAT }}" "https://api.github.com/orgs/greyorange/teams/$team_name/members" | jq --raw-output ".[].login")
-
-          if [[ $member_login =~ "${{ github.actor }}" ]]; then
-            is_member=true
-            break
-          fi
-        done
-
-        if [ "$is_member" = true ]; then
-          echo "User verified."
-        else
-          echo "Permission Denied."
-          exit 1
-        fi
+    - uses: TheModdingInquisition/actions-team-membership@v1.0
+      with:
+        organization: ${{ github.repository_owner }} 
+        team: ${{ vars.MAINTAINERS_TEAM_NAME }}
+        token: ${{ secrets.GH_PUSH_PAT }}
+        comment: 'Permission Denied'      
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
-
-    - name: Set Git user identity
-      run: |
-        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-
     - name: Revert commit
       run: |
         git checkout ${{ inputs.branch }}
-        git revert --no-edit ${{ inputs.commit_id }}
-      
-    - name: Push changes
-      uses: ad-m/github-push-action@v0.6.0
+        git revert --no-commit ${{ inputs.commit_id }}
+    - id: auto-commit
+      uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        github_token: ${{ secrets.GH_PUSH_PAT }}
+        commit_message: "Revert commit ${{ inputs.commit_id }}"
+        skip_fetch: true
+        skip_checkout: true
         branch: ${{ inputs.branch }}
