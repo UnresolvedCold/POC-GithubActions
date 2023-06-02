@@ -18,16 +18,13 @@ jobs:
     steps:
     - name: Check team membership
       run: |
-        team_name="My_Team"
-        team_members=$(gh team list-members --team "$team_name" --json login --paginate)
-        # ! Remove this before production
-        echo "Team members: $team_members"
-        member_login=$(jq --raw-output ".[].login" <<< "$team_members")
+        team_name="gm-maintainers"
+        member_login=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/greyorange/teams/$team_name/members" | jq --raw-output ".[].login")
 
         if [[ $member_login =~ "${{ github.actor }}" ]]; then
           echo "User is a member of the specified team. Proceeding with the workflow..."
         else
-          echo "Permission denied."
+          echo "User is not a member of the specified team. Workflow execution stopped."
           exit 1
         fi
     - name: Checkout repository
