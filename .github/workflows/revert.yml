@@ -19,7 +19,7 @@ jobs:
     - name: Check team membership
       run: |
         team_name="gm-maintainers"
-        member_login=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/greyorange/teams/$team_name/members" | jq --raw-output ".[].login")
+        member_login=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_PUSH_PAT }}" "https://api.github.com/orgs/greyorange/teams/$team_name/members" | jq --raw-output ".[].login")
 
         if [[ $member_login =~ "${{ github.actor }}" ]]; then
           echo "User is a member of the specified team. Proceeding with the workflow..."
