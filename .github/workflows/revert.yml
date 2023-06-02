@@ -2,8 +2,6 @@ name: Revert Commit
 
 on:
   workflow_dispatch:
-    permissions:
-      teams: [myteam]
     inputs:
       branch:
         description: 'Branch name'
@@ -18,13 +16,23 @@ jobs:
     steps:
     - name: Check team membership
       run: |
-        team_name="gm-maintainers"
-        member_login=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_PUSH_PAT }}" "https://api.github.com/orgs/greyorange/teams/$team_name/members" | jq --raw-output ".[].login")
+        echo Allowed: ${{ vars.ALLOWED_TEAMS }}
+        team_names=("gm-maintainers" "other-team" "another-team")
 
-        if [[ $member_login =~ "${{ github.actor }}" ]]; then
-          echo "User is a member of the specified team. Proceeding with the workflow..."
+        is_member=false
+        for team_name in "${team_names[@]}"; do
+          member_login=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/greyorange/teams/$team_name/members" | jq --raw-output ".[].login")
+
+          if [[ $member_login =~ "${{ github.actor }}" ]]; then
+            is_member=true
+            break
+          fi
+        done
+
+        if [ "$is_member" = true ]; then
+          echo "User verified."
         else
-          echo "User is not a member of the specified team. Workflow execution stopped."
+          echo "Permission Denied."
           exit 1
         fi
     - name: Checkout repository
