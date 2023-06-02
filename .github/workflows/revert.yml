@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: TheModdingInquisition/actions-team-membership@v1.0
       with:
-        organization: greyorange 
+        organization: "greyorange" 
         team: ${{ vars.MAINTAINERS_TEAM_NAME }}
         token: ${{ secrets.GH_PUSH_PAT }}
         comment: 'Permission Denied'      
